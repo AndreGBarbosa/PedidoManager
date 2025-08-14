@@ -1,0 +1,35 @@
+﻿@model IEnumerable<PedidoManager.Models.Pedido>
+
+<h2>Pedidos</h2>
+
+<a asp-action="Criar" class="btn btn-success mb-3">Novo Pedido</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Cliente</th>
+            <th>Valor Total</th>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pedido in Model)
+        {
+            <tr>
+                <td>@pedido.Cliente?.Nome</td>
+                <td>@pedido.ValorTotal.ToString("C")</td>
+                <td>@pedido.DataPedido.ToShortDateString()</td>
+                <td>@pedido.Status</td>
+                <td>
+                    <a asp-action="Detalhes" asp-route-id="@pedido.Id" class="btn btn-sm btn-info">Detalhes</a>
+                    <a asp-action="Editar" asp-route-id="@pedido.Id" class="btn btn-sm btn-warning">Editar</a>
+                    <form asp-action="Excluir" asp-route-id="@pedido.Id" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

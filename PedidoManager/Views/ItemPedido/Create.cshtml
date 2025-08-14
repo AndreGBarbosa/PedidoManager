@@ -1,0 +1,53 @@
+﻿@model PedidoManager.Models.ViewModels.ItemPedidoViewModel
+@using PedidoManager.Models
+
+@{
+    ViewData["Title"] = "Adicionar Item ao Pedido";
+    var produtos = ViewBag.Produtos as IEnumerable<Produto>;
+}
+
+<h2>Adicionar Item ao Pedido</h2>
+
+<form asp-action="Adicionar" method="post">
+    <input type="hidden" asp-for="PedidoId" />
+
+    <div class="form-group">
+        <label asp-for="ProdutoId"></label>
+        <select asp-for="ProdutoId" class="form-control" asp-items="@(new SelectList(produtos, "Id", "Nome"))">
+            <option value="">Selecione um produto</option>
+        </select>
+        <span asp-validation-for="ProdutoId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Quantidade"></label>
+        <input asp-for="Quantidade" class="form-control" min="1" />
+        <span asp-validation-for="Quantidade" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PrecoUnitario"></label>
+        <input asp-for="PrecoUnitario" class="form-control" readonly />
+        <span asp-validation-for="PrecoUnitario" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Adicionar</button>
+    <a asp-controller="Pedido" asp-action="Detalhes" asp-route-id="@Model.PedidoId" class="btn btn-secondary">Voltar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $('select[name="ProdutoId"]').on('change', function () {
+            var produtoId = $(this).val();
+            if (!produtoId) {
+                $('input[name="PrecoUnitario"]').val('');
+                return;
+            }
+
+            $.get('/Produto/BuscarPreco/' + produtoId, function (data) {
+                $('input[name="PrecoUnitario"]').val(data.preco.toFixed(2));
+            });
+        });
+    </script>
+}

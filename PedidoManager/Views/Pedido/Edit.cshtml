@@ -1,0 +1,38 @@
+﻿@model PedidoManager.Models.Pedido
+@{
+    var clientes = ViewBag.Clientes as IEnumerable<PedidoManager.Models.Cliente>;
+}
+
+<h2>Editar Pedido</h2>
+
+<form asp-action="Editar" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="ClienteId"></label>
+        <select asp-for="ClienteId" class="form-control" asp-items="@(new SelectList(clientes, "Id", "Nome"))">
+            <option value="">Selecione</option>
+        </select>
+        <span asp-validation-for="ClienteId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Status"></label>
+        <select asp-for="Status" class="form-control">
+            <option value="Novo">Novo</option>
+            <option value="Processando">Processando</option>
+            <option value="Finalizado">Finalizado</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <!-- ValorTotal não deve ser editado manualmente -->
+    <input type="hidden" asp-for="ValorTotal" />
+
+    <button type="submit" class="btn btn-primary">Atualizar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

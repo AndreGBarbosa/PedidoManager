@@ -1,0 +1,27 @@
+﻿@model PedidoManager.Models.Pedido
+
+<h2>Confirmar Exclusão</h2>
+
+<div class="alert alert-danger">
+    Tem certeza que deseja excluir este pedido?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">Cliente</dt>
+    <dd class="col-sm-10">@Model.Cliente?.Nome</dd>
+
+    <dt class="col-sm-2">Valor Total</dt>
+    <dd class="col-sm-10">@Model.ValorTotal.ToString("C")</dd>
+
+    <dt class="col-sm-2">Data</dt>
+    <dd class="col-sm-10">@Model.DataPedido.ToShortDateString()</dd>
+
+    <dt class="col-sm-2">Status</dt>
+    <dd class="col-sm-10">@Model.Status</dd>
+</dl>
+
+<form asp-action="Excluir" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Excluir</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

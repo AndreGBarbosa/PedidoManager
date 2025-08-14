@@ -1,0 +1,35 @@
+﻿@model Produto
+
+<h2>@ViewContext.RouteData.Values["action"] Produto</h2>
+
+<form asp-action="@(ViewContext.RouteData.Values["action"])" method="post" class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Nome" class="form-label"></label>
+        <input asp-for="Nome" class="form-control" />
+        <span asp-validation-for="Nome" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Descricao" class="form-label"></label>
+        <input asp-for="Descricao" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Preco" class="form-label"></label>
+        <input asp-for="Preco" class="form-control" />
+        <span asp-validation-for="Preco" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="QuantidadeEstoque" class="form-label"></label>
+        <input asp-for="QuantidadeEstoque" class="form-control" />
+        <span asp-validation-for="QuantidadeEstoque" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="/Produto" class="btn btn-secondary">Voltar</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

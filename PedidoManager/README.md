@@ -1,4 +1,4 @@
-# 🛒 PedidoManager
+﻿# 🛒 PedidoManager
 
 Sistema simplificado de **Gerenciamento de Pedidos** desenvolvido por **Andre G. Barbosa** como parte do teste técnico para a vaga mencionada no documento da UXComex.
 

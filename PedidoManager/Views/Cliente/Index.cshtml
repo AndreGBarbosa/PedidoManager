@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Cliente>
+@{
+    ViewData["Title"] = "Client List";
+}
+
+<h2>Client List</h2>
+
+<input type="text" id="searchInput" class="form-control mb-3" placeholder="Search by name or email..." />
+
+<table class="table table-bordered" id="clientTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Registered</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cliente in Model)
+        {
+            <tr>
+                <td>@cliente.Nome</td>
+                <td>@cliente.Email</td>
+                <td>@cliente.Telefone</td>
+                <td>@cliente.DataCadastro.ToShortDateString()</td>
+                <td>
+                    <a asp-action="Editar" asp-route-id="@cliente.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <form asp-action="Excluir" asp-route-id="@cliente.Id" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        $('#searchInput').on('keyup', function () {
+            var value = $(this).val().toLowerCase();
+            $('#clientTable tbody tr').filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+    </script>
+}

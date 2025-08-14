@@ -1,0 +1,27 @@
+﻿@model PedidoManager.Models.Pedido
+@{
+    var clientes = ViewBag.Clientes as IEnumerable<PedidoManager.Models.Cliente>;
+}
+
+<h2>Novo Pedido</h2>
+
+<form asp-action="Criar" method="post">
+    <div class="form-group">
+        <label asp-for="ClienteId"></label>
+        <select asp-for="ClienteId" class="form-control" asp-items="@(new SelectList(clientes, "Id", "Nome"))">
+            <option value="">Selecione</option>
+        </select>
+        <span asp-validation-for="ClienteId" class="text-danger"></span>
+    </div>
+
+    <!-- ValorTotal será calculado automaticamente no backend -->
+    <input type="hidden" asp-for="ValorTotal" />
+    <input type="hidden" asp-for="Status" />
+
+    <button type="submit" class="btn btn-success">Salvar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
