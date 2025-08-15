@@ -52,6 +52,9 @@ namespace PedidoManager.Controllers
             await _pedidoRepository.AdicionarItensAsync(item.PedidoId, new List<Models.ItemPedido> { itemPedido });
             await _produtoRepository.DiminuirEstoqueAsync(item.ProdutoId, item.Quantidade);
 
+            var valorItem = itemPedido.Quantidade * itemPedido.PrecoUnitario;
+            await _pedidoRepository.AtualizarValorTotalAsync(itemPedido.PedidoId, valorItem);
+
             TempData["Mensagem"] = "Item adicionado com sucesso!";
             return RedirectToAction("Detalhes", "Pedido", new { id = item.PedidoId });
         }

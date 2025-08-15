@@ -14,9 +14,7 @@ namespace PedidoManager.Models.ViewModels
         [Range(1, int.MaxValue, ErrorMessage = "Quantidade deve ser maior que zero.")]
         public int Quantidade { get; set; }
 
-        [Required]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Preço deve ser maior que zero.")]
-        public decimal PrecoUnitario { get; set; }
+        public decimal PrecoUnitario { get; set; } // sem [Required]
 
         public string? NomeProduto { get; set; }
     }

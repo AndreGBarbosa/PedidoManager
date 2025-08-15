@@ -1,0 +1,27 @@
+﻿@model PedidoManager.Models.ViewModels.ItemPedidoViewModel
+
+<h2>Adicionar Item ao Pedido #@Model.PedidoId</h2>
+
+<form asp-action="Adicionar" method="post">
+    <input type="hidden" asp-for="PedidoId" />
+
+    <div>
+        <label>Produto</label>
+        <select asp-for="ProdutoId" asp-items="@(new SelectList(ViewBag.Produtos, "Id", "Nome"))"></select>
+        <span asp-validation-for="ProdutoId" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label>Quantidade</label>
+        <input asp-for="Quantidade" />
+        <span asp-validation-for="Quantidade" class="text-danger"></span>
+    </div>
+
+    <button type="submit">Adicionar</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

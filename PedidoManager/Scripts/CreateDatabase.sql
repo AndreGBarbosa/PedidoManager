@@ -31,7 +31,7 @@ CREATE TABLE Produto (
 CREATE TABLE Pedido (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     ClienteId INT NOT NULL,
-    Data DATE NOT NULL,
+    DataPedido DATE NOT NULL,
     ValorTotal DECIMAL(10,2) NOT NULL,
     Status NVARCHAR(20) NOT NULL CHECK (Status IN ('Novo', 'Processando', 'Finalizado')),
     FOREIGN KEY (ClienteId) REFERENCES Cliente(Id)
@@ -70,3 +70,18 @@ INSERT INTO Produto (Nome, Descricao, Preco, QuantidadeEstoque) VALUES
 ('Teclado Gamer', 'Teclado RGB com mecânica azul', 250.00, 10),
 ('Mouse Sem Fio', 'Mouse óptico com conexão 2.4GHz', 120.00, 15),
 ('Headset Bluetooth', 'Fone com microfone e som estéreo', 299.00, 8);
+
+-- PEDIDOS
+INSERT INTO Pedido (ClienteId, DataPedido, ValorTotal, Status) VALUES
+(1, GETDATE(), 370.00, 'Novo'),
+(2, GETDATE(), 299.00, 'Processando');
+
+-- ITENS DO PEDIDO
+-- Pedido 1: Andre comprou 1 Teclado Gamer e 1 Mouse Sem Fio
+INSERT INTO ItemPedido (PedidoId, ProdutoId, Quantidade, PrecoUnitario) VALUES
+(1, 1, 1, 250.00),
+(1, 2, 1, 120.00);
+
+-- Pedido 2: Fernanda comprou 1 Headset Bluetooth
+INSERT INTO ItemPedido (PedidoId, ProdutoId, Quantidade, PrecoUnitario) VALUES
+(2, 3, 1, 299.00);

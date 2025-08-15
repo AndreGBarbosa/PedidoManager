@@ -13,5 +13,8 @@ namespace PedidoManager.Repositories.Interfaces
         Task<bool> UpdateStatusAsync(int pedidoId, string novoStatus);
         Task LogStatusChangeAsync(int pedidoId, string anterior, string novo);
         Task DeleteAsync(int id);
+        Task<Pedido> GetByIdWithItensAsync(int id);
+        Task AtualizarValorTotalAsync(int pedidoId, decimal valorAdicional);
+
     }
 }

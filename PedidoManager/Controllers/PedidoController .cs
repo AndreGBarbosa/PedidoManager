@@ -44,7 +44,7 @@ namespace PedidoManager.Controllers
 
             var pedidoId = await _pedidoRepository.CreateAsync(pedido);
             TempData["Mensagem"] = "Pedido criado com sucesso!";
-            return RedirectToAction("Index");
+            return RedirectToAction("Adicionar", "ItemPedido", new { pedidoId });
         }
 
         public async Task<IActionResult> Editar(int id)
@@ -56,6 +56,7 @@ namespace PedidoManager.Controllers
             ViewBag.Clientes = await _clienteRepository.GetAllAsync();
             return View(pedido);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Editar(Pedido pedido)
@@ -82,6 +83,15 @@ namespace PedidoManager.Controllers
             await _pedidoRepository.DeleteAsync(id);
             TempData["Mensagem"] = "Pedido excluído!";
             return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Detalhes(int id)
+        {
+            var pedido = await _pedidoRepository.GetByIdWithItensAsync(id);
+            if (pedido == null)
+                return NotFound();
+
+            return View(pedido);
         }
     }
 }

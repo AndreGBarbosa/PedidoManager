@@ -19,5 +19,8 @@ namespace PedidoManager.Models
         public string Status { get; set; }
 
         public Cliente Cliente { get; set; }
+
+        public List<ItemPedido> Itens { get; set; } = new();
+
     }
 }

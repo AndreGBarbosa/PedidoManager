@@ -1,0 +1,45 @@
+﻿@model PedidoManager.Models.Pedido
+
+<h2>Editar Pedido</h2>
+
+<form asp-action="Editar" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="ClienteId"></label>
+        <input asp-for="ClienteId" class="form-control" />
+        <span asp-validation-for="ClienteId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DataPedido"></label>
+        <input asp-for="DataPedido" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ValorTotal"></label>
+        <input asp-for="ValorTotal" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Status"></label>
+        <select asp-for="Status" class="form-control">
+            <option value="Novo">Novo</option>
+            <option value="Processando">Processando</option>
+            <option value="Finalizado">Finalizado</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+
+    <button type="submit" class="btn btn-primary">Atualizar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

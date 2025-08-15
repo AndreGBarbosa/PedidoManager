@@ -3,6 +3,7 @@ using PedidoManager.Models;
 using PedidoManager.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -107,5 +108,54 @@ namespace PedidoManager.Repositories
             string sql = "DELETE FROM Pedido WHERE Id = @Id";
             await _connection.ExecuteAsync(sql, new { Id = id });
         }
+
+        public async Task<Pedido> GetByIdWithItensAsync(int id)
+        {
+            string sql = @"
+        SELECT 
+            p.Id, p.ClienteId, p.DataPedido, p.ValorTotal, p.Status,
+            c.Id, c.Nome,
+            i.Id, i.PedidoId, i.ProdutoId, i.Quantidade, i.PrecoUnitario,
+            pr.Nome AS NomeProduto
+        FROM Pedido p
+        INNER JOIN Cliente c ON p.ClienteId = c.Id
+        LEFT JOIN ItemPedido i ON i.PedidoId = p.Id
+        LEFT JOIN Produto pr ON pr.Id = i.ProdutoId
+        WHERE p.Id = @Id";
+
+            var pedidoDict = new Dictionary<int, Pedido>();
+
+            var result = await _connection.QueryAsync<Pedido, Cliente, ItemPedido, Pedido>(
+                sql,
+                (pedido, cliente, item) =>
+                {
+                    if (!pedidoDict.TryGetValue(pedido.Id, out var pedidoEntry))
+                    {
+                        pedidoEntry = pedido;
+                        pedidoEntry.Cliente = cliente;
+                        pedidoEntry.Itens = new List<ItemPedido>();
+                        pedidoDict.Add(pedido.Id, pedidoEntry);
+                    }
+
+                    if (item != null)
+                    {
+                        pedidoEntry.Itens.Add(item);
+                    }
+
+                    return pedidoEntry;
+                },
+                new { Id = id },
+                splitOn: "Id,Id,Id"
+            );
+
+            return result.FirstOrDefault();
+        }
+
+        public async Task AtualizarValorTotalAsync(int pedidoId, decimal valorAdicional)
+        {
+            string sql = @"UPDATE Pedido SET ValorTotal = ValorTotal + @ValorAdicional WHERE Id = @Id";
+            await _connection.ExecuteAsync(sql, new { Id = pedidoId, ValorAdicional = valorAdicional });
+        }
+
     }
 }

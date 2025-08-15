@@ -1,40 +1,32 @@
-﻿@model PedidoDetalhesViewModel
+﻿@model PedidoManager.Models.Pedido
 
-<h2>Detalhes do Pedido</h2>
+<h2>Pedido #@Model.Id</h2>
+<p><strong>Cliente:</strong> @Model.Cliente.Nome</p>
+<p><strong>Data:</strong> @Model.DataPedido.ToShortDateString()</p>
+<p><strong>Status:</strong> @Model.Status</p>
+<p><strong>Total:</strong> R$ @Model.ValorTotal.ToString("F2")</p>
 
-@if (TempData["Mensagem"] != null)
-{
-    <div class="alert alert-success">@TempData["Mensagem"]</div>
-}
-
-<p><strong>Cliente:</strong> @Model.NomeCliente</p>
-<p><strong>Data:</strong> @Model.Data.ToString("dd/MM/yyyy")</p>
-<p><strong>Valor Total:</strong> @Model.ValorTotal.ToString("C")</p>
-
-<form asp-action="AlterarStatus" method="post" class="row g-3">
-    <input type="hidden" name="id" value="@Model.Id" />
-    <div class="col-md-6">
-        <label class="form-label">Status:</label>
-        <select name="novoStatus" class="form-select">
-            <option value="Novo" selected="@(Model.Status == "Novo")">Novo</option>
-            <option value="Processando" selected="@(Model.Status == "Processando")">Processando</option>
-            <option value="Finalizado" selected="@(Model.Status == "Finalizado")">Finalizado</option>
-        </select>
-    </div>
-    <div class="col-md-6"><button type="submit" class="btn btn-primary mt-4">Atualizar</button></div>
-</form>
-
-<h4 class="mt-4">Itens do Pedido</h4>
-<table class="table table-bordered">
-    <thead><tr><th>Produto</th><th>Quantidade</th><th>Preço</th></tr></thead>
+<h3>Itens do Pedido</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Preço Unitário</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
     <tbody>
         @foreach (var item in Model.Itens)
         {
             <tr>
                 <td>@item.NomeProduto</td>
                 <td>@item.Quantidade</td>
-                <td>@item.PrecoUnitario.ToString("C")</td>
+                <td>R$ @item.PrecoUnitario.ToString("F2")</td>
+                <td>R$ @(item.Quantidade* item.PrecoUnitario).ToString("F2")</td>
             </tr>
         }
     </tbody>
 </table>
+
+<a asp-action="Adicionar" asp-controller="ItemPedido" asp-route-pedidoId="@Model.Id">Adicionar Item</a>
