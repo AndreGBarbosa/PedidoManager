@@ -3,8 +3,6 @@ using PedidoManager.Models.ViewModels;
 using PedidoManager.Repositories.Interfaces;
 using Xunit;
 using Moq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PedidoManager.Tests
 {
@@ -13,7 +11,6 @@ namespace PedidoManager.Tests
         [Fact]
         public async Task DeveRetornarErro_QuandoEstoqueInsuficiente()
         {
-            // Arrange
             var produtoMock = new Produto { Id = 1, Nome = "Produto A", Preco = 10, QuantidadeEstoque = 2 };
 
             var produtoRepo = new Mock<IProdutoRepository>();
@@ -28,11 +25,9 @@ namespace PedidoManager.Tests
 
             var service = new PedidoService(pedidoRepo.Object, produtoRepo.Object);
 
-            // Act
             var result = await service.ValidarEstoqueAsync(itens);
 
-            // Assert
-            Assert.False(result.Sucesso);
+            Assert.True(false);
             Assert.Equal("Insufficient stock for product: Produto A", result.Mensagem);
         }
     }

@@ -1,0 +1,23 @@
+﻿@model IEnumerable<PedidoManager.Models.Produto>
+
+<h2>Todos os Produtos</h2>
+
+<a asp-action="Criar" class="btn btn-success mb-3">Novo Produto</a>
+
+<ul class="nav nav-tabs mb-3" id="produtoTabs">
+    <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#ativos">Ativos</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#desativados">Desativados</a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="ativos">
+        @Html.Partial("_TabelaProdutos", Model.Where(p => p.Ativo))
+    </div>
+    <div class="tab-pane fade" id="desativados">
+        @Html.Partial("_TabelaProdutosDesativados", Model.Where(p => !p.Ativo))
+    </div>
+</div>

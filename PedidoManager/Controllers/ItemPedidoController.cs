@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PedidoManager.Models.ViewModels;
 using PedidoManager.Repositories.Interfaces;
-using System.Threading.Tasks;
 
 namespace PedidoManager.Controllers
 {
@@ -32,7 +31,6 @@ namespace PedidoManager.Controllers
                 return View(item);
             }
 
-            // Convertendo ViewModel para Model
             var produto = await _produtoRepository.GetByIdAsync(item.ProdutoId);
             if (produto == null || produto.QuantidadeEstoque < item.Quantidade)
             {

@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using PedidoManager.Models;
-using System.Diagnostics;
 
 namespace PedidoManager.Controllers
 {

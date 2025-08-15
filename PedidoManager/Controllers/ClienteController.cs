@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PedidoManager.Models;
 using PedidoManager.Repositories.Interfaces;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PedidoManager.Controllers
 {

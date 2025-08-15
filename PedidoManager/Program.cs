@@ -1,26 +1,28 @@
-﻿using PedidoManager.Repositories;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
+using System.Data;
+using PedidoManager.Repositories;
 using PedidoManager.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔧 Serviços
+// 🔧 Serviços MVC
 builder.Services.AddControllersWithViews();
 
-// 💾 Conexão com o banco e repositórios
-builder.Services.AddSingleton<DbConnectionFactory>();
-builder.Services.AddScoped<PedidoRepository>();
-builder.Services.AddScoped<ClienteRepository>();
+// 💾 Conexão com Dapper
+builder.Services.AddScoped<IDbConnection>(sp =>
+    new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// 💾 Repositórios
 builder.Services.AddTransient<IPedidoRepository, PedidoRepository>();
-builder.Services.AddTransient<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddTransient<IClienteRepository, ClienteRepository>();
+builder.Services.AddTransient<IProdutoRepository, ProdutoRepository>();
+builder.Services.AddTransient<IItemPedidoRepository, ItemPedidoRepository>();
+
+builder.Services.AddSingleton<DbConnectionFactory>();
 
 var app = builder.Build();
 
-// 🌐 Configuração de pipeline
+// 🌐 Pipeline de requisição
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -31,7 +33,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 app.UseAuthorization();
 
 // 🧭 Rotas padrão

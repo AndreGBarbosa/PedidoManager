@@ -1,33 +1,61 @@
-﻿@model PedidoManager.Models.Pedido
+﻿@model PedidoManager.Models.ViewModels.PedidoViewModel
 @{
-    var clientes = ViewBag.Clientes as IEnumerable<PedidoManager.Models.Cliente>;
+    var clientes = Model.Clientes;
+    var pedido = Model.Pedido;
 }
 
 <h2>Editar Pedido</h2>
 
 <form asp-action="Editar" method="post">
-    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Pedido.Id" />
+
+    <div asp-validation-summary="All" class="text-danger"></div>
 
     <div class="form-group">
-        <label asp-for="ClienteId"></label>
-        <select asp-for="ClienteId" class="form-control" asp-items="@(new SelectList(clientes, "Id", "Nome"))">
+        <label asp-for="Pedido.ClienteId"></label>
+        <select asp-for="Pedido.ClienteId" class="form-control" asp-items="@(new SelectList(clientes, "Id", "Nome"))">
             <option value="">Selecione</option>
         </select>
-        <span asp-validation-for="ClienteId" class="text-danger"></span>
+        <span asp-validation-for="Pedido.ClienteId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Status"></label>
-        <select asp-for="Status" class="form-control">
+        <label asp-for="Pedido.Status"></label>
+        <select asp-for="Pedido.Status" class="form-control">
             <option value="Novo">Novo</option>
             <option value="Processando">Processando</option>
             <option value="Finalizado">Finalizado</option>
         </select>
-        <span asp-validation-for="Status" class="text-danger"></span>
+        <span asp-validation-for="Pedido.Status" class="text-danger"></span>
     </div>
 
-    <!-- ValorTotal não deve ser editado manualmente -->
-    <input type="hidden" asp-for="ValorTotal" />
+    <h4>Itens do Pedido</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Preço Unitário</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < pedido.Itens.Count; i++)
+            {
+                <tr>
+                    <td>@pedido.Itens[i].NomeProduto</td>
+                    <td>
+                        <input type="hidden" asp-for="Pedido.Itens[@i].Id" />
+                        <input type="number" asp-for="Pedido.Itens[@i].Quantidade" class="form-control" />
+                    </td>
+                    <td>
+                        <input type="number" asp-for="Pedido.Itens[@i].PrecoUnitario" class="form-control" step="0.01" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <input type="hidden" asp-for="Pedido.ValorTotal" />
 
     <button type="submit" class="btn btn-primary">Atualizar</button>
     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>

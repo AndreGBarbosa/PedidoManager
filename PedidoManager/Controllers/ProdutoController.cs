@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using PedidoManager.Models;
-using PedidoManager.Repositories.Interfaces;
-using System.Threading.Tasks;
 
 namespace PedidoManager.Controllers
 {
@@ -14,9 +12,9 @@ namespace PedidoManager.Controllers
             _produtoRepository = produtoRepository;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string nome, decimal? precoMin, decimal? precoMax, bool? incluirInativos)
         {
-            var produtos = await _produtoRepository.GetAllAsync();
+            var produtos = await _produtoRepository.FiltrarAsync(nome, precoMin, precoMax, incluirInativos ?? false);
             return View(produtos);
         }
 
@@ -32,7 +30,7 @@ namespace PedidoManager.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Editar(int id)
+        public async Task<IActionResult> EditarProduto(int id)
         {
             var produto = await _produtoRepository.GetByIdAsync(id);
             if (produto == null) return NotFound();
@@ -41,7 +39,7 @@ namespace PedidoManager.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Editar(Produto produto)
+        public async Task<IActionResult> EditarProduto(Produto produto)
         {
             if (!ModelState.IsValid) return View(produto);
 
@@ -53,8 +51,8 @@ namespace PedidoManager.Controllers
         [HttpPost]
         public async Task<IActionResult> Excluir(int id)
         {
-            await _produtoRepository.DeleteAsync(id);
-            TempData["Mensagem"] = "Produto excluído!";
+            await _produtoRepository.DesativarAsync(id);
+            TempData["Mensagem"] = "Produto desativado com sucesso!";
             return RedirectToAction("Index");
         }
 
@@ -65,6 +63,28 @@ namespace PedidoManager.Controllers
             if (produto == null) return NotFound();
 
             return Json(new { preco = produto.Preco });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Desativar(int id)
+        {
+            await _produtoRepository.DesativarAsync(id);
+            TempData["Mensagem"] = "Produto desativado com sucesso!";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Ativar(int id)
+        {
+            await _produtoRepository.AtivarAsync(id);
+            TempData["Mensagem"] = "Produto reativado com sucesso!";
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Todos()
+        {
+            var produtos = await _produtoRepository.GetAllIncludingInactiveAsync();
+            return View(produtos);
         }
     }
 }

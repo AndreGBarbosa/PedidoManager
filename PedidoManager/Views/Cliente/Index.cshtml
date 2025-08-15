@@ -1,14 +1,21 @@
-﻿@model IEnumerable<Cliente>
+﻿@model IEnumerable<PedidoManager.Models.Cliente>
 @{
-    ViewData["Title"] = "Client List";
+    ViewData["Title"] = "Lista de Clientes";
 }
 
-<h2>Client List</h2>
+<h2>@ViewData["Title"]</h2>
 
-<input type="text" id="searchInput" class="form-control mb-3" placeholder="Search by name or email..." />
+@if (TempData["Mensagem"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensagem"]</div>
+}
 
-<table class="table table-bordered" id="clientTable">
-    <thead>
+<a asp-action="Criar" class="btn btn-success mb-3">Novo Cliente</a>
+
+<input type="text" id="searchInput" class="form-control mb-3 w-50" placeholder="Procure por Nome ou por Email..." />
+
+<table class="table table-hover table-striped table-bordered" id="clientTable">
+    <thead class="thead-dark">
         <tr>
             <th>Name</th>
             <th>Email</th>
@@ -24,11 +31,11 @@
                 <td>@cliente.Nome</td>
                 <td>@cliente.Email</td>
                 <td>@cliente.Telefone</td>
-                <td>@cliente.DataCadastro.ToShortDateString()</td>
+                <td>@cliente.DataCadastro.ToString("dd/MM/yyyy")</td>
                 <td>
-                    <a asp-action="Editar" asp-route-id="@cliente.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Editar" asp-route-id="@cliente.Id" class="btn btn-sm btn-warning">Editar</a>
                     <form asp-action="Excluir" asp-route-id="@cliente.Id" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza de que deseja excluir este cliente?')">Excluir</button>
                     </form>
                 </td>
             </tr>
@@ -41,7 +48,9 @@
         $('#searchInput').on('keyup', function () {
             var value = $(this).val().toLowerCase();
             $('#clientTable tbody tr').filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                var name = $(this).find('td:eq(0)').text().toLowerCase();
+                var email = $(this).find('td:eq(1)').text().toLowerCase();
+                $(this).toggle(name.includes(value) || email.includes(value));
             });
         });
     </script>

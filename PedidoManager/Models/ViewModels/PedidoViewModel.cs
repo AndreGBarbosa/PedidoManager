@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace PedidoManager.Models.ViewModels
+﻿namespace PedidoManager.Models.ViewModels
 {
     public class PedidoViewModel
     {
-        public int ClienteId { get; set; }
-        public DateTime DataPedido { get; set; }
-        public string ItensJson { get; set; } // Recebe os itens via jQuery
+        public Pedido Pedido { get; set; }
+        public IEnumerable<Cliente> Clientes { get; set; }
+
     }
 }

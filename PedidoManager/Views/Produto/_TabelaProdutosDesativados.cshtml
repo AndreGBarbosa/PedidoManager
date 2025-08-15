@@ -1,0 +1,27 @@
+﻿@model IEnumerable<PedidoManager.Models.Produto>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Preço</th>
+            <th>Estoque</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var produto in Model)
+        {
+            <tr>
+                <td>@produto.Nome</td>
+                <td>@produto.Preco.ToString("C")</td>
+                <td>@produto.QuantidadeEstoque</td>
+                <td>
+                    <form asp-action="Ativar" asp-route-id="@produto.Id" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-success">Reativar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

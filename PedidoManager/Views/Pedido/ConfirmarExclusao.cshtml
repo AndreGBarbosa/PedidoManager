@@ -1,0 +1,12 @@
+﻿@model PedidoManager.Models.Pedido
+
+<h2>Confirmação de Exclusão</h2>
+
+<p>O pedido <strong>#@Model.Id</strong> possui <strong>@Model.Itens.Count</strong> item(ns).</p>
+<p>Tem certeza que deseja excluir este pedido? Todos os itens e os produtos relacionados serão afetados.</p>
+
+<form asp-action="ExcluirConfirmado" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Sim, excluir</button>
+    <a asp-action="Detalhes" asp-route-id="@Model.Id" class="btn btn-secondary">Cancelar</a>
+</form>

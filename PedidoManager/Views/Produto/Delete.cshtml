@@ -1,8 +1,11 @@
-﻿@model PedidoManager.Models.Pedido
-<h2>Excluir Pedido</h2>
-<p>Deseja realmente excluir o pedido de <strong>@Model.ClienteId</strong>?</p>
-<form method="post">
+﻿@model PedidoManager.Models.Produto
+
+<h2>Excluir Produto</h2>
+
+<p>Deseja realmente excluir o produto <strong>@Model.Nome</strong>?</p>
+
+<form asp-action="Excluir" asp-controller="Produto" method="post">
     <input type="hidden" asp-for="Id" />
-    <button type="submit">Confirmar</button>
-    <a href="/Pedido">Cancelar</a>
+    <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+    <a asp-action="Index" asp-controller="Produto" class="btn btn-secondary">Cancelar</a>
 </form>

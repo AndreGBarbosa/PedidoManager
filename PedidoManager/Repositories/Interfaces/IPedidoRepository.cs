@@ -1,6 +1,4 @@
 ﻿using PedidoManager.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PedidoManager.Repositories.Interfaces
 {
@@ -15,6 +13,9 @@ namespace PedidoManager.Repositories.Interfaces
         Task DeleteAsync(int id);
         Task<Pedido> GetByIdWithItensAsync(int id);
         Task AtualizarValorTotalAsync(int pedidoId, decimal valorAdicional);
+        Task RemoverItensAsync(int pedidoId);
+        Task AumentarEstoqueAsync(int produtoId, int quantidade);
+        Task<bool> UpdateValorTotalAsync(int pedidoId, decimal novoValor);
 
     }
 }

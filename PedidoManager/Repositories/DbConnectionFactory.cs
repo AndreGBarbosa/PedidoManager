@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 namespace PedidoManager.Repositories
 {
     public class DbConnectionFactory

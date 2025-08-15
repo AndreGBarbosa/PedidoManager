@@ -1,48 +1,99 @@
-﻿@model IEnumerable<Produto>
+﻿@model IEnumerable<PedidoManager.Models.Produto>
 @{
-    ViewData["Title"] = "Product List";
+    ViewData["Title"] = "Lista de Produtos";
 }
 
-<h2>Product List</h2>
+<h2>@ViewData["Title"]</h2>
 
-<input type="text" id="searchInput" class="form-control mb-3" placeholder="Search by name..." />
+@if (TempData["Mensagem"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensagem"]</div>
+}
 
-<table class="table table-bordered" id="productTable">
+<a asp-action="Criar" class="btn btn-success mb-3">Novo Produto</a>
+
+<!-- 🔍 Filtros -->
+<form method="get" class="mb-4">
+    <div class="form-row">
+        <div class="col-md-3">
+            <input type="text" name="nome" class="form-control" placeholder="Nome do produto"
+                   value="@Context.Request.Query["nome"]" />
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="precoMin" class="form-control" placeholder="Preço mínimo" step="0.01"
+                   value="@Context.Request.Query["precoMin"]" />
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="precoMax" class="form-control" placeholder="Preço máximo" step="0.01"
+                   value="@Context.Request.Query["precoMax"]" />
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mt-2">
+                <input type="checkbox" name="incluirInativos" class="form-check-input" value="true"
+                       @(Context.Request.Query["incluirInativos"] == "true" ? "checked" : "") />
+                <label class="form-check-label">Incluir inativos</label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a asp-action="Index" class="btn btn-secondary">Limpar</a>
+        </div>
+    </div>
+</form>
+
+<!-- 📋 Tabela de produtos -->
+<table class="table table-hover table-striped table-bordered">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th>Actions</th>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Preço</th>
+            <th>Estoque</th>
+            <th>Status</th>
+            <th>Ações</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var produto in Model)
         {
-            <tr>
+            <tr class="@(produto.Ativo ? "" : "table-secondary")">
                 <td>@produto.Nome</td>
                 <td>@produto.Descricao</td>
-                <td>R$ @produto.Preco</td>
+                <td>@produto.Preco.ToString("C")</td>
                 <td>@produto.QuantidadeEstoque</td>
                 <td>
-                    <a asp-action="Editar" asp-route-id="@produto.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <form asp-action="Excluir" asp-route-id="@produto.Id" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                    </form>
+                    @if (produto.Ativo)
+                    {
+                        <span class="badge badge-success">Ativo</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-danger">Inativo</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="EditarProduto" asp-route-id="@produto.Id" class="btn btn-sm btn-warning">Editar</a>
+
+                    @if (produto.Ativo)
+                    {
+                        <form asp-action="Excluir" asp-route-id="@produto.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Deseja desativar este produto?')">
+                                Desativar
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Ativar" asp-route-id="@produto.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-success"
+                                    onclick="return confirm('Deseja reativar este produto?')">
+                                Ativar
+                            </button>
+                        </form>
+                    }
                 </td>
             </tr>
         }
     </tbody>
 </table>
-
-@section Scripts {
-    <script>
-        $('#searchInput').on('keyup', function () {
-            var value = $(this).val().toLowerCase();
-            $('#productTable tbody tr').filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-            });
-        });
-    </script>
-}

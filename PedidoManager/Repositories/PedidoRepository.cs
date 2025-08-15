@@ -1,11 +1,7 @@
 ﻿using Dapper;
 using PedidoManager.Models;
 using PedidoManager.Repositories.Interfaces;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PedidoManager.Repositories
 {
@@ -58,7 +54,7 @@ namespace PedidoManager.Repositories
 
         public async Task<int> CreateAsync(Pedido pedido)
         {
-            string sql = @"INSERT INTO Pedido (ClienteId, Data, ValorTotal, Status)
+            string sql = @"INSERT INTO Pedido (ClienteId, DataPedido, ValorTotal, Status)
                            VALUES (@ClienteId, @DataPedido, @ValorTotal, @Status);
                            SELECT CAST(SCOPE_IDENTITY() as int);";
 
@@ -105,8 +101,30 @@ namespace PedidoManager.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            string sql = "DELETE FROM Pedido WHERE Id = @Id";
-            await _connection.ExecuteAsync(sql, new { Id = id });
+            if (_connection.State != ConnectionState.Open)
+                _connection.Open();
+
+            using var transaction = _connection.BeginTransaction();
+
+            try
+            {
+                string deleteItens = "DELETE FROM ItemPedido WHERE PedidoId = @Id";
+                await _connection.ExecuteAsync(deleteItens, new { Id = id }, transaction);
+
+                string deletePedido = "DELETE FROM Pedido WHERE Id = @Id";
+                await _connection.ExecuteAsync(deletePedido, new { Id = id }, transaction);
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+            finally
+            {
+                _connection.Close(); 
+            }
         }
 
         public async Task<Pedido> GetByIdWithItensAsync(int id)
@@ -156,6 +174,37 @@ namespace PedidoManager.Repositories
             string sql = @"UPDATE Pedido SET ValorTotal = ValorTotal + @ValorAdicional WHERE Id = @Id";
             await _connection.ExecuteAsync(sql, new { Id = pedidoId, ValorAdicional = valorAdicional });
         }
+
+        public async Task RemoverItensAsync(int pedidoId)
+        {
+            string sql = "DELETE FROM ItemPedido WHERE PedidoId = @PedidoId";
+            await _connection.ExecuteAsync(sql, new { PedidoId = pedidoId });
+        }
+
+        public async Task AumentarEstoqueAsync(int produtoId, int quantidade)
+        {
+            string sql = @"UPDATE Produto SET QuantidadeEstoque = QuantidadeEstoque + @Quantidade WHERE Id = @Id";
+            await _connection.ExecuteAsync(sql, new { Id = produtoId, Quantidade = quantidade });
+        }
+
+        public async Task<bool> UpdateValorTotalAsync(int pedidoId, decimal novoValor)
+        {
+            var sql = @"
+            UPDATE Pedido
+            SET ValorTotal = @ValorTotal
+            WHERE Id = @Id";
+
+            var rows = await _connection.ExecuteAsync(sql, new
+            {
+                Id = pedidoId,
+                ValorTotal = novoValor
+            });
+
+            return rows > 0;
+        }
+
+
+
 
     }
 }

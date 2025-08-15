@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PedidoManager.Models;
+using PedidoManager.Models.ViewModels;
 using PedidoManager.Repositories.Interfaces;
-using System;
-using System.Threading.Tasks;
 
 namespace PedidoManager.Controllers
 {
@@ -10,11 +9,16 @@ namespace PedidoManager.Controllers
     {
         private readonly IPedidoRepository _pedidoRepository;
         private readonly IClienteRepository _clienteRepository;
+        private readonly IProdutoRepository _produtoRepository;
+        private readonly IItemPedidoRepository _itemPedidoRepository;       
 
-        public PedidoController(IPedidoRepository pedidoRepo, IClienteRepository clienteRepo)
+        public PedidoController(IPedidoRepository pedidoRepo, IClienteRepository clienteRepo, IProdutoRepository produtoRepository, IItemPedidoRepository itemPedidoRepository)
         {
             _pedidoRepository = pedidoRepo;
             _clienteRepository = clienteRepo;
+            _produtoRepository = produtoRepository;
+            _itemPedidoRepository = itemPedidoRepository;
+
         }
 
         public async Task<IActionResult> Index()
@@ -25,22 +29,32 @@ namespace PedidoManager.Controllers
 
         public async Task<IActionResult> Criar()
         {
-            ViewBag.Clientes = await _clienteRepository.GetAllAsync();
-            return View();
+            var viewModel = new PedidoViewModel
+            {
+                Pedido = new Pedido(),
+                Clientes = await _clienteRepository.GetAllAsync()
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Criar(Pedido pedido)
+        public async Task<IActionResult> Criar(PedidoViewModel viewModel)
         {
-            if (!ModelState.IsValid)
+            var pedido = viewModel.Pedido;
+
+            pedido.Cliente = await _clienteRepository.GetByIdAsync(pedido.ClienteId);
+
+
+            if (!ModelState.IsValid && pedido.ClienteId == null)
             {
-                ViewBag.Clientes = await _clienteRepository.GetAllAsync();
-                return View(pedido);
+                viewModel.Clientes = await _clienteRepository.GetAllAsync();
+                return View(viewModel);
             }
 
             pedido.DataPedido = DateTime.Now;
             pedido.Status = "Novo";
-            pedido.ValorTotal = 0; // Valor será calculado ao adicionar itens
+            pedido.ValorTotal = 0;
 
             var pedidoId = await _pedidoRepository.CreateAsync(pedido);
             TempData["Mensagem"] = "Pedido criado com sucesso!";
@@ -53,27 +67,53 @@ namespace PedidoManager.Controllers
             if (pedido == null)
                 return NotFound();
 
-            ViewBag.Clientes = await _clienteRepository.GetAllAsync();
-            return View(pedido);
+            pedido.Itens = (await _itemPedidoRepository.GetByPedidoIdAsync(id)).ToList();
+            var clientes = await _clienteRepository.GetAllAsync();
+
+            var viewModel = new PedidoViewModel
+            {
+                Pedido = pedido,
+                Clientes = clientes
+            };
+
+            return View(viewModel);
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> Editar(Pedido pedido)
+        public async Task<IActionResult> Editar(PedidoViewModel viewModel)
         {
-            if (!ModelState.IsValid)
+
+            var pedido = viewModel.Pedido;
+            pedido.Cliente = await _clienteRepository.GetByIdAsync(pedido.ClienteId);
+
+            if (!ModelState.IsValid && pedido.ClienteId == null)
             {
-                ViewBag.Clientes = await _clienteRepository.GetAllAsync();
-                return View(pedido);
+                viewModel.Clientes = await _clienteRepository.GetAllAsync();
+                pedido.Itens = (await _itemPedidoRepository.GetByPedidoIdAsync(pedido.Id)).ToList();
+                return View(viewModel);
             }
 
-            // Atualização de status ou cliente, sem alterar itens
-            var atualizado = await _pedidoRepository.UpdateStatusAsync(pedido.Id, pedido.Status);
-            if (atualizado)
-                TempData["Mensagem"] = "Pedido atualizado!";
-            else
-                TempData["Mensagem"] = "Erro ao atualizar pedido.";
+            var estoqueValido = await _produtoRepository.ValidarEstoqueAsync(pedido.Itens);
+            if (!estoqueValido)
+            {
+                ModelState.AddModelError("", "Um ou mais produtos não possuem estoque suficiente.");
+                viewModel.Clientes = await _clienteRepository.GetAllAsync();
+                pedido.Itens = (await _itemPedidoRepository.GetByPedidoIdAsync(pedido.Id)).ToList();
+                return View(viewModel);
+            }
 
+            var atualizado = await _pedidoRepository.UpdateStatusAsync(pedido.Id, pedido.Status);
+
+            decimal novoTotal = 0;
+            foreach (var item in pedido.Itens)
+            {
+                await _itemPedidoRepository.UpdateAsync(item);
+                novoTotal += item.Quantidade * item.PrecoUnitario;
+            }
+
+            await _pedidoRepository.UpdateValorTotalAsync(pedido.Id, novoTotal);
+
+            TempData["Mensagem"] = atualizado ? "Pedido e itens atualizados com sucesso!" : "Erro ao atualizar pedido.";
             return RedirectToAction("Index");
         }
 
@@ -92,6 +132,34 @@ namespace PedidoManager.Controllers
                 return NotFound();
 
             return View(pedido);
+        }
+
+        public async Task<IActionResult> ConfirmarExclusao(int id)
+        {
+            var pedido = await _pedidoRepository.GetByIdWithItensAsync(id);
+            if (pedido == null)
+                return NotFound();
+
+            return View(pedido);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ExcluirConfirmado(int id)
+        {
+            var pedido = await _pedidoRepository.GetByIdWithItensAsync(id);
+            if (pedido == null)
+                return NotFound();
+
+            foreach (var item in pedido.Itens)
+            {
+                await _produtoRepository.AumentarEstoqueAsync(item.ProdutoId, item.Quantidade);
+            }
+
+            await _pedidoRepository.RemoverItensAsync(id);
+            await _pedidoRepository.DeleteAsync(id);
+
+            TempData["Mensagem"] = $"Pedido #{id} excluído com sucesso.";
+            return RedirectToAction("Index");
         }
     }
 }

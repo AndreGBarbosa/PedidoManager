@@ -16,7 +16,6 @@ namespace PedidoManager.Models
         [Range(0.01, double.MaxValue, ErrorMessage = "Preço deve ser maior que zero.")]
         public decimal PrecoUnitario { get; set; }
 
-        // Se quiser exibir o nome do produto na View, pode adicionar:
         public string? NomeProduto { get; set; }
     }
 }

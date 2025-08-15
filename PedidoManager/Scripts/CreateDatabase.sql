@@ -1,15 +1,10 @@
-﻿-- 1. Criar o banco de dados
-IF DB_ID('PedidoDB') IS NULL
+﻿IF DB_ID('PedidoDB') IS NULL
     CREATE DATABASE PedidoDB;
 GO
 
--- 2. Usar o banco de dados
 USE PedidoDB;
 GO
 
--- 3. Criar tabelas
-
--- CLIENTE
 CREATE TABLE Cliente (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Nome NVARCHAR(100) NOT NULL,
@@ -18,16 +13,15 @@ CREATE TABLE Cliente (
     DataCadastro DATE NOT NULL
 );
 
--- PRODUTO
 CREATE TABLE Produto (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Nome NVARCHAR(100) NOT NULL,
     Descricao NVARCHAR(255),
     Preco DECIMAL(10,2) NOT NULL,
-    QuantidadeEstoque INT NOT NULL
+    QuantidadeEstoque INT NOT NULL,
+    Ativo BIT NOT NULL DEFAULT 1 
 );
 
--- PEDIDO
 CREATE TABLE Pedido (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     ClienteId INT NOT NULL,
@@ -37,7 +31,6 @@ CREATE TABLE Pedido (
     FOREIGN KEY (ClienteId) REFERENCES Cliente(Id)
 );
 
--- ITEM DO PEDIDO
 CREATE TABLE ItemPedido (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     PedidoId INT NOT NULL,
@@ -48,7 +41,6 @@ CREATE TABLE ItemPedido (
     FOREIGN KEY (ProdutoId) REFERENCES Produto(Id)
 );
 
--- ALTERAÇÃO DE STATUS DO PEDIDO
 CREATE TABLE AlteracaoStatusPedido (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     PedidoId INT NOT NULL,
@@ -58,30 +50,22 @@ CREATE TABLE AlteracaoStatusPedido (
     FOREIGN KEY (PedidoId) REFERENCES Pedido(Id)
 );
 
--- 4. Inserir dados iniciais
-
--- CLIENTES
 INSERT INTO Cliente (Nome, Email, Telefone, DataCadastro) VALUES
 ('Andre Silva', 'andre@email.com', '1199998888', GETDATE()),
 ('Fernanda Costa', 'fernanda@email.com', '1198888777', GETDATE());
 
--- PRODUTOS
-INSERT INTO Produto (Nome, Descricao, Preco, QuantidadeEstoque) VALUES
-('Teclado Gamer', 'Teclado RGB com mecânica azul', 250.00, 10),
-('Mouse Sem Fio', 'Mouse óptico com conexão 2.4GHz', 120.00, 15),
-('Headset Bluetooth', 'Fone com microfone e som estéreo', 299.00, 8);
+INSERT INTO Produto (Nome, Descricao, Preco, QuantidadeEstoque, Ativo) VALUES
+('Teclado Gamer', 'Teclado RGB com mecânica azul', 250.00, 10, 1),
+('Mouse Sem Fio', 'Mouse óptico com conexão 2.4GHz', 120.00, 15, 1),
+('Headset Bluetooth', 'Fone com microfone e som estéreo', 299.00, 8, 1);
 
--- PEDIDOS
 INSERT INTO Pedido (ClienteId, DataPedido, ValorTotal, Status) VALUES
 (1, GETDATE(), 370.00, 'Novo'),
 (2, GETDATE(), 299.00, 'Processando');
 
--- ITENS DO PEDIDO
--- Pedido 1: Andre comprou 1 Teclado Gamer e 1 Mouse Sem Fio
 INSERT INTO ItemPedido (PedidoId, ProdutoId, Quantidade, PrecoUnitario) VALUES
 (1, 1, 1, 250.00),
 (1, 2, 1, 120.00);
 
--- Pedido 2: Fernanda comprou 1 Headset Bluetooth
 INSERT INTO ItemPedido (PedidoId, ProdutoId, Quantidade, PrecoUnitario) VALUES
 (2, 3, 1, 299.00);

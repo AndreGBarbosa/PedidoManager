@@ -1,9 +1,7 @@
 ﻿using Dapper;
 using PedidoManager.Models;
 using PedidoManager.Repositories.Interfaces;
-using System.Collections.Generic;
 using System.Data;
-using System.Threading.Tasks;
 
 namespace PedidoManager.Repositories
 {
